@@ -9,6 +9,8 @@ function getRandomInt (min, max) {
 //user width and height saved in vars (it isn't obvious :D)
 var userWidth = 120;
 var userHeight = 120;
+var ieWidth = 120;
+var ieHeight = 120;
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
@@ -99,6 +101,66 @@ function Shot(x,y,speed,visibility){
 		}
 	}
 }
+function InternetExporer(x,y,speed,hitPoints,hitPower){
+	//set object properties for x,y coordinate and speed
+	this.x = x;
+	this.y = y;
+	this.speed = speed;
+	//some indicators
+	this.canIJump = true;
+	this.isShotFired = false;
+	//will use this shits later :D
+	this.hitPower = hitPower;
+	this.hitPoints = hitPoints;
+	//make draw function for the object, whick also clears the canvas after the img is loaded, but before drawing
+	this.draw = function(ctx){
+		var ieimg = new Image();
+		//save this to another varaible so that you can use it in the onload function
+		var _this = this;
+			ieimg.onload = function(){
+				ctx.beginPath();
+				ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+				ctx.drawImage(ieimg, _this.x, _this.y, ieWidth, ieHeight);
+			};
+			ieimg.src = 'images/ie6.png';
+	}
+	//some movement functions
+	this.moveRight = function(){
+		this.x += this.speed;
+	}
+	this.moveLeft = function(){
+		this.x -= this.speed;
+	}
+	this.jump = function(){
+		//jump is activated so you can't jump again
+		this.canIJump = false;
+		//save this to another varaible so that you can use it in the timeout
+		var _this = this;
+		for(var i = 0; i < 30 ; i++){
+			//go up
+			setTimeout(function(){
+				_this.y -= 4;
+			},i*20);
+			//go down after some seconds
+			setTimeout(function(){
+				_this.y += 4;
+			},(i+30)*20);
+		}
+		//after the jump you can jump again
+		setTimeout(function(){
+			_this.canIJump = true;
+		},1200);
+	}
+	//shoot a shot
+	this.shoot = function(){
+		//shot is fired and you can't shoot again before it leave the canvas
+		this.isShotFired = true;
+		//make shot visible and set the right coords and speed for it
+		shot = new Shot(this.x + 80, this.y + 40, -2*this.speed, true);
+
+	}
+
+}
 /*add eventlistener
 32 - space
 37 - left
@@ -125,12 +187,16 @@ window.addEventListener("keyup", function(e) {
 var user = new User(0,ctx.canvas.height - userHeight,5,10,10);
 //create shot
 var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
+//create ie
+var ie  = new InternetExporer(ctx.canvas.width -ieWidth,ctx.canvas.height - ieHeight,5,10,10)
 //animation frame
 function animationFrame(){
 	//clear the canvas and draw the user
 	user.draw(ctx);
 	//draw shot
 	shot.draw(ctx);
+	//draw ie
+	ie.draw(ctx)
 	//cache the keysDown array because you change it dynamicaly and shit things happen if you don't do this :D
 	var cache = keysDown;
 	//perform moves if some keys are down
@@ -160,6 +226,34 @@ function animationFrame(){
 					user.shoot();
 			}
 			break;
+		}
+
+		//Crating bot brain
+		/*var botBrain = getRandomInt(0,3);
+		*/switch(cache[i]){
+			case 65: 
+				//left
+				if(ie.x >= indexOf.speed)
+					ie.moveLeft();
+				
+				break;
+			case 68: 
+				//right
+				if(ie.x <= ctx.canvas.width - ieWidth - ie.speed)
+					ie.moveRight();
+				break;
+			case 87: 
+				//up
+				if(ie.canIJump)
+					ie.jump();
+			
+				break;
+			case 83: 
+				//space
+				if(!user.isShotFired)
+					ie.shoot();
+	
+				break;
 		}
 	}
 	//move shot
