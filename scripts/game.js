@@ -58,11 +58,12 @@ function User(x,y,speed,hitPower,hitPoints){
 
 
    
-   this.canIShoot = true;
+   this.canIshoot = true;
 
    this.isShotFired = false;
-   this.shot= new Shot(this.x,this.y,this.speed*2.2);
+   
    this.shoot = function(){
+   		this.shot= new Shot(this.x,this.y,this.speed*2.2);
    		this.canIshoot  = false;
    		this.isShotFired =  true;
    }
@@ -102,47 +103,21 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 	this.moveDown = function(){
 		this.y += this.speed;
 	}
-	 this.jump = function(){
-	     //jump is activated so you can't jump again
-	     //console.log(this.y)
-	     this.canIJump = false;
-	     //save this to another varaible so that you can use it in the timeout
-	     var _this = this;
-	     //go up
-	     for(var i = 0; i < 25 ; i++){
-	       	setTimeout(function(){
-	        	_this.y -= 4;
-	       },i*20);
-	     }
-	     //go down
-	    for(var i = 0; i < 25 ; i++){
-	       	setTimeout(function(){
-	        	_this.y += 4;
-	      },(i+25)*20);
-	     }
-	     //after the jump you can jump again
-	     setTimeout(function(){
-	       _this.canIJump = true;
-	     },1000);
+	
    }
 
 
-}
 
-var keysDown = [];
-window.addEventListener("keydown", function(e) {
-			//add the key to the keysDown array if it isn't there (indexOf used for that check) and if it is an arrow key or space
-			if(((e.keyCode >= 37 && e.keyCode <=39) || e.keyCode == 32) && keysDown.indexOf(e.keyCode) == -1)
-				keysDown.push(e.keyCode);
-});
-window.addEventListener("keyup", function(e) {
-			if(e.keyCode >= 37 && e.keyCode <= 39 || e.keyCode == 32){
-				//take the index of the key
-				var index = keysDown.indexOf(e.keyCode);
-				//remove it
-				keysDown.splice(index,1);
-			}
-});
+
+var keysDown = {};
+
+addEventListener("keydown", function (e) {
+	keysDown[e.keyCode] = true;
+}, false);
+
+addEventListener("keyup", function (e) {
+	delete keysDown[e.keyCode];
+}, false);
 
 var user1 = new User(0,ctx.canvas.height - userHeight,5,10,100);
 //create shot
@@ -162,7 +137,7 @@ function sleep(milliseconds) {
 function animationFrame(){
 			canvas.width = canvas.width;
 			/*
-		
+		c
 		ctx.fillStyle = "black";
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "left";
@@ -181,7 +156,7 @@ function animationFrame(){
 			ieWidth = 10;
 			ie.speed =   25;
 		},1000)
-			
+		console.log(keysDown)
 
 		}
 		if(ie.y<canvas.height - 70)
@@ -197,41 +172,49 @@ function animationFrame(){
 			ie.speed =   5;
 			ie.health = 100;
 		}
-
+		if (38 in keysDown && user1.y>canvas.height - 250 && user1.canIJump===true) { // Player holding up
+			
+			user1.y -= user1.speed;
+			if(user1.y <canvas.height - 220){
+				user1.canIJump = false;
+			}
 		
-		var cache = keysDown;
-		for(var i = 0; i < cache.length; i++){
-			switch(cache[i]){
-				case 37: {
-					//left
-					if(user1.x >= user1.speed){
-						
-						user1.moveLeft();
-					 	
+		
+		}
+		
+		if ((!(38  in keysDown) && user1.y < canvas.height-70)||user1.canIJump === false) { // Player holding up
+
+				user1.canIJump = false;
+				if( user1.x + userWidth < ie.x || user1.x>ie.x+ieWidth){						
+					if (user1.y >=canvas.height-70){
+					user1.canIJump = true;
 					}
-					break;
-				}					
-				case 39: {
-					//right
-					if(user1.x <= ie.x - userWidth - user1.speed){
-						user1.moveRight();		
-					}
-					break;
-				}					
-				case 38: {
-					//up
-					if(user1.canIJump)
-						user1.jump();
-					break;
 				}
-				case 32: {
-					//space
-					if(user1.canIShoot){
+				else{
+					if (user1.y >=ie.y + userHeight){
+					user1.canIJump = true;
+					}
+				}
+				user1.y += user1.speed;
+				
+			
+		}
+		if (37 in keysDown && user1.x>user1.speed) { // Player holding left
+			user1.moveLeft();
+		}
+		if (39 in keysDown&& user1.x <= canvas.width - userWidth - user1.speed) { // Player holding right
+			if( user1.x < ie.x - userWidth - user1.speed|| user1.x>ie.x+ie){
+							user1.moveRight();		
+						}
+						else if(user1.y<ie.y - userHeight || user1.y > ie.y + ieHeight){
+							user1.moveRight();	
+						}
+		}
+		if (32 in keysDown) { // Player holding right
+				if(user1.canIshoot){
 						user1.shoot();
 					}
-					break;
-				}						
-			}
+
 		}
 		if(user1.isShotFired){	
 			if(user1.shot.x < ie.x || user1.shot.x > ie.x + userWidth)			{	
