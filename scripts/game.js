@@ -181,20 +181,21 @@ function animationFrame(){
 		
 		
 		}
-		
-		if ((!(38  in keysDown) && user1.y < canvas.height-70)||user1.canIJump === false) { // Player holding up
+		var baseLine = 0;
+		if( user1.x + userWidth  < ie.x - user1.speed || user1.x>ie.x+ieWidth){						
+					baseLine = canvas.height - userHeight
+			}
+		else{
+			baseLine = canvas.height - 2*userHeight
+		}
+		console.log(baseLine);
+		if ((!(38  in keysDown) && user1.y < baseLine)||user1.canIJump === false) { // Player holding up
 
 				user1.canIJump = false;
-				if( user1.x + userWidth < ie.x || user1.x>ie.x+ieWidth){						
-					if (user1.y >=canvas.height-70){
-					user1.canIJump = true;
-					}
-				}
-				else{
-					if (user1.y >=ie.y + userHeight){
-					user1.canIJump = true;
-					}
-				}
+				
+				if (user1.y >= baseLine )
+				user1.canIJump = true;
+					
 				user1.y += user1.speed;
 				
 			
