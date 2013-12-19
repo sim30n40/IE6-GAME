@@ -11,6 +11,7 @@ var userWidth = 70;
 var userHeight = 70;
 var ieWidth = 70;
 var ieHeight = 70;
+var kills = 0;
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
@@ -22,6 +23,7 @@ function User(x,y,speed,hitPower,hitPoints){
 	//creating image for the user
 	this.img = new Image();
 	this.img.src = "images/user.png";
+	this.amIGoingUp = false;
 	//controll brains
 	this.moveRight = function(){
 		this.x+= this.speed;
@@ -103,7 +105,15 @@ function InternetExporer(x,y,speed,hitPower,hitPoints){
 	this.moveDown = function(){
 		this.y += this.speed;
 	}
-	
+
+   this.canIshoot = true;
+
+   this.isShotFired = false;
+	this.shoot = function(){
+   		this.shot= new Shot(this.x,this.y,this.speed*2.2);
+   		this.canIshoot  = false;
+   		this.isShotFired =  true;
+   }
    }
 
 
@@ -123,7 +133,7 @@ var user1 = new User(0,ctx.canvas.height - userHeight,5,10,100);
 //create shot
 //var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
 //create ie
-var ie  = new InternetExporer(ctx.canvas.width -ieWidth,ctx.canvas.height - ieHeight,5,10,100)
+var ie  = new InternetExporer(ctx.canvas.width -3*ieWidth,ctx.canvas.height - ieHeight,5,10,100)
 function sleep(milliseconds) {
   var start = new Date().getTime();
   for (var i = 0; i < 1e7; i++) {
@@ -136,28 +146,31 @@ function sleep(milliseconds) {
 
 function animationFrame(){
 			canvas.width = canvas.width;
-			/*
-		c
+			
 		ctx.fillStyle = "black";
 		ctx.font = "24px Helvetica";
 		ctx.textAlign = "left";
 		ctx.textBaseline = "top";
-		ctx.fillText("User: "+user1.health+" IE: "+ie.health , canvas.width/3, 32);*/
+		ctx.fillText("Kills: "+kills+"          Health: "+user1.health , canvas.width/3, 32);
 		if(user1.health>0)
 			ctx.drawImage(user1.img, user1.x, user1.y, userWidth, userHeight);
-		if(ie.health>0)
+		if(ie.health>0){
 			ctx.drawImage(ie.userImg,ie.x,ie.y,ieWidth,ieHeight);	
+		}
 		else{
-			setTimeout(function(){
+			kills++
 			ie.health = 10000000000000000000;
-			ie.x = ctx.canvas.width -70;
 			ie.y = canvas.height/2 + 50 ;
-			ieHeight = 10;
-			ieWidth = 10;
-			ie.speed =   25;
-		},1000)
-		console.log(keysDown)
-
+			ieHeight = 0;
+			ieWidth = 0;
+			ie.speed =   15;
+			
+			ie.x  = getRandomInt(canvas.width/2,canvas.width) - 70;
+		
+		
+		}
+		if(ie.canIshoot && ie.health<10000&&ie.health>0&&user1.health>0){
+			ie.shoot()
 		}
 		if(ie.y<canvas.height - 70)
 			{
@@ -167,51 +180,68 @@ function animationFrame(){
 				ieWidth++;
 			}
 			}
-
-		if(ie.y>=canvas.height - 70 && ie.health>10000000){
-			ie.speed =   5;
-			ie.health = 100;
-		}
-		if (38 in keysDown && user1.y>canvas.height - 250 && user1.canIJump===true) { // Player holding up
-			
-			user1.y -= user1.speed;
-			if(user1.y <canvas.height - 220){
-				user1.canIJump = false;
-			}
-		
-		
-		}
 		var baseLine = 0;
-		if( user1.x + userWidth  < ie.x - user1.speed || user1.x>ie.x+ieWidth){						
+		if( user1.x + userWidth  <= ie.x - user1.speed || user1.x>=ie.x+ieWidth){						
 					baseLine = canvas.height - userHeight
 			}
 		else{
 			baseLine = canvas.height - 2*userHeight
 		}
-		console.log(baseLine);
-		if ((!(38  in keysDown) && user1.y < baseLine)||user1.canIJump === false) { // Player holding up
-
-				user1.canIJump = false;
-				
-				if (user1.y >= baseLine )
-				user1.canIJump = true;
-					
-				user1.y += user1.speed;
-				
+		if(ie.y>=canvas.height - 70 && ie.health>10000000){
+			ie.speed =   5;
+			ie.health = getRandomInt(25,250);
 			
+
 		}
-		if (37 in keysDown && user1.x>user1.speed) { // Player holding left
-			user1.moveLeft();
+		if (38 in keysDown&& user1.canIJump) { // Player holding up
+			user1.amIGoingUp = true;
+			if(user1.y < canvas.height - userHeight){
+				user1.canIJump = false; 
+			}
+
 		}
-		if (39 in keysDown&& user1.x <= canvas.width - userWidth - user1.speed) { // Player holding right
-			if( user1.x < ie.x - userWidth - user1.speed|| user1.x>ie.x+ie){
-							user1.moveRight();		
-						}
-						else if(user1.y<ie.y - userHeight || user1.y > ie.y + ieHeight){
-							user1.moveRight();	
-						}
+
+		if(user1.amIGoingUp){
+			user1.y-=user1.speed;
 		}
-		if (32 in keysDown) { // Player holding right
+		else{
+			if(user1.y > baseLine){
+				user1.canIJump = true;
+			}
+			else{
+				user1.y+=user1.speed;
+			}
+		}
+		if(user1.y <baseLine - 120){
+			user1.amIGoingUp = false;
+
+		}
+		
+		if (37 in keysDown && user1.x>0&&user1.health>0) { // Player holding left
+				
+				if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
+					user1.moveLeft();
+				}
+				else{
+
+					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
+						user1.moveLeft();
+					}
+				}	
+		}
+
+		if (39 in keysDown&& user1.x < canvas.width - userWidth&&user1.health>0) { // Player holding right
+			if(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ){
+					user1.moveRight();
+				}
+				else{
+
+					if((user1.y < ie.y - ieHeight + 10)&&(!(  user1.x > ie.x + userWidth || user1.x < ie.x - ieWidth   ))){
+						user1.moveRight();
+					}
+				}	
+		}
+		if (32 in keysDown&&user1.health>0) { 
 				if(user1.canIshoot){
 						user1.shoot();
 					}
@@ -240,6 +270,39 @@ function animationFrame(){
 					user1.isShotFired = false;
 					user1.shot.x = user1.x;
 					user1.shot.y = user1.y+50;
+			}
+		}
+		if(ie.isShotFired){	
+			if(ie.shot.x > user1.x+ userWidth || ie.shot.x < user1.x - userWidth )			{	
+				ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
+				ie.shot.moveLeft();
+			}
+			else{
+				if(ie.shot.y + 18 < user1.y ||ie.shot.y>user1.y + userHeight){
+					ctx.drawImage(ie.shot.img,ie.shot.x,ie.shot.y,54,18);
+					ie.shot.moveLeft();
+				}
+				else{
+					user1.health -= getRandomInt(3,7);
+					if(user1.health<0)
+						user1.health = 0
+					var useless = getRandomInt(500,1500);
+					setTimeout(function(){
+					ie.canIshoot =true;
+				},useless);
+					ie.isShotFired = false;
+					ie.shot.x = ie.x;
+					ie.shot.y = ie.y+20;
+				}
+			}
+			if(ie.shot.x <0 || ie.shot.x > canvas.width|| ie.shot.y <0 || ie.shot.y> canvas.height){
+					var useless = getRandomInt(500,1500);
+					setTimeout(function(){
+					ie.canIshoot =true;
+				},useless);
+					ie.isShotFired = false;
+					ie.shot.x = ie.x;
+					ie.shot.y = ie.y+50;
 			}
 		}
 		
