@@ -54,22 +54,16 @@ function User(x,y,speed,hitPower,hitPoints){
 			_this.canIJump = true;
 		},1000);
    }
-   
-
-
-   
    this.canIShoot = true;
 
    this.isShotFired = false;
-   this.shot= new Shot(this.x,this.y,this.speed*2.2);
    this.shoot = function(){
-   		this.canIshoot  = false;
+   		this.shot = new Shot(this.x + 55,this.y + 20,this.speed*2.2);
+   		this.canIShoot  = false;
    		this.isShotFired =  true;
    }
-
-
 }
-function Shot(x,y,speed) {
+function Shot(x,y,speed){
 		this.x = x
 		this.y = y
 		this.speed = speed;
@@ -81,7 +75,7 @@ function Shot(x,y,speed) {
 		this.moveLeft = function(){
 			this.x-= this.speed;
 		}
-	}
+}
 function InternetExporer(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
@@ -245,14 +239,14 @@ function animationFrame(){
 				}
 				else{
 					ie.health -= 25;
-					user1.canIshoot =true;
+					user1.canIShoot =true;
 					user1.isShotFired = false;
 					user1.shot.x = user1.x;
 					user1.shot.y = user1.y+20;
 				}
 			}
 			if(user1.shot.x <0 || user1.shot.x > canvas.width|| user1.shot.y <0 || user1.shot.y> canvas.height){
-					user1.canIshoot =true;
+					user1.canIShoot =true;
 					user1.isShotFired = false;
 					user1.shot.x = user1.x;
 					user1.shot.y = user1.y+50;
