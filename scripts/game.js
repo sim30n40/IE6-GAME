@@ -54,10 +54,24 @@ function User(x,y,speed,hitPower,hitPoints){
 			_this.canIJump = true;
 		},1000);
    }
-   that = this
-   		this.Shot = function (speed) {
-		this.x = that.x;
-		this.y = that.y+20;
+   
+
+
+   
+   this.canIShoot = true;
+
+   this.isShotFired = false;
+   this.shot= new Shot(this.x,this.y,this.speed*2.2);
+   this.shoot = function(){
+   		this.canIshoot  = false;
+   		this.isShotFired =  true;
+   }
+
+
+}
+function Shot(x,y,speed) {
+		this.x = x
+		this.y = y
 		this.speed = speed;
 		this.img = new Image();
 		this.img.src = "images/altf4.png";
@@ -67,19 +81,7 @@ function User(x,y,speed,hitPower,hitPoints){
 		this.moveLeft = function(){
 			this.x-= this.speed;
 		}
-
-   }
-   this.canIShoot = true;
-
-   this.isShotFired = false;
-   this.shot= new this.Shot(this.speed*2.2);
-   this.shoot = function(){
-   		this.canIshoot  = false;
-   		this.isShotFired =  true;
-   }
-
-
-}
+	}
 function InternetExporer(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
@@ -202,14 +204,18 @@ function animationFrame(){
 			switch(cache[i]){
 				case 37: {
 					//left
-					if(user1.x >= user1.speed)
+					if(user1.x >= user1.speed){
+						
 						user1.moveLeft();
+					 	
+					}
 					break;
 				}					
 				case 39: {
 					//right
-					if(user1.x <= ctx.canvas.width - userWidth - user1.speed)
-						user1.moveRight();					
+					if(user1.x <= ie.x - userWidth - user1.speed){
+						user1.moveRight();		
+					}
 					break;
 				}					
 				case 38: {
