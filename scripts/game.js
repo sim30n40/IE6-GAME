@@ -7,282 +7,126 @@ function getRandomInt (min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 //user width and height saved in vars (it isn't obvious :D)
-var userWidth = 120;
-var userHeight = 120;
-var ieWidth = 120;
-var ieHeight = 120;
+var userWidth = 70;
+var userHeight = 70;
+var ieWidth = 70;
+var ieHeight = 70;
 //create object for the user
 function User(x,y,speed,hitPower,hitPoints){
 	//set object properties for x,y coordinate and speed
 	this.x = x;
 	this.y = y;
 	this.speed = speed;
-	//some indicators
-	this.canIJump = true;
-	this.isShotFired = false;
-	this.imgReady = false;
-	//will use this shits later :D
-	this.hitPower = hitPower;
-	this.hitPoints = hitPoints;
-	//make draw function for the object, whick also clears the canvas after the img is loaded, but before drawing
-	this.draw = function(ctx){
-		//save this to another varaible so that you can use it in the onload function
-		var _this = this;
-		var userimg = new Image();
-			userimg.onload = function(){
-				_this.imgReady = true;
-				ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-				ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-			};
-			userimg.src = 'images/user.png';
-	}
-	//some movement functions
+	//set health
+	this.health = hitPoints;
+	//creating image for the user
+	this.img = new Image();
+	this.img.src = "images/user.png";
+	//controll brains
 	this.moveRight = function(){
-		var _this = this;
-		var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.x += speed;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/user.png';
+		this.x+= this.speed;
 	}
 	this.moveLeft = function(){
-		var _this = this;
-		var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.x -= speed;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/user.png';
+		this.x-= this.speed;
 	}
+	//activate jump by default
+	this.canIJump = true;
 	this.jump = function(){
 		//jump is activated so you can't jump again
+		//console.log(this.y)
 		this.canIJump = false;
 		//save this to another varaible so that you can use it in the timeout
 		var _this = this;
-		for(var i = 0; i < 30 ; i++){
-			//go up
-			setTimeout(function(){
-				var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.y -= 4;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/user.png';
+		//go up
+		for(var i = 0; i < 25 ; i++){
+				setTimeout(function(){
+				_this.y -= 5;
 			},i*20);
-			//go down after some seconds
-			setTimeout(function(){
-				var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.y += 4;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/user.png';
-			},(i+30)*20);
+		}
+		//go down
+		for(var i = 0; i < 25 ; i++){
+				setTimeout(function(){
+				_this.y += 5;
+			},(i+25)*20);
 		}
 		//after the jump you can jump again
 		setTimeout(function(){
 			_this.canIJump = true;
-		},1200);
-	}
-	//shoot a shot
-	this.shoot = function(){
-		//shot is fired and you can't shoot again before it leave the canvas
-		this.isShotFired = true;
-		//make shot visible and set the right coords and speed for it
-		shot = new Shot(this.x + 100, this.y + 40, 2*this.speed, true);
+		},1000);
+   }
+   that = this
+   		this.Shot = function (speed) {
+		this.x = that.x;
+		this.y = that.y+20;
+		this.speed = speed;
+		this.img = new Image();
+		this.img.src = "images/altf4.png";
+		this.moveRight = function(){
+		this.x+= this.speed;
+		}
+		this.moveLeft = function(){
+			this.x-= this.speed;
+		}
 
-	}
+   }
+   this.canIShoot = true;
+
+   this.isShotFired = false;
+   this.shot= new this.Shot(this.speed*2.2);
+   this.shoot = function(){
+   		this.canIshoot  = false;
+   		this.isShotFired =  true;
+   }
+
+
 }
-//set shot width and height
-var shotWidth = 54;
-var shotHeight = 18;
-//create object for the shot
-function Shot(x,y,speed,visibility){
-	//set some shot properties
+function InternetExporer(x,y,speed,hitPower,hitPoints){
+	//set object properties for x,y coordinate and speed
 	this.x = x;
 	this.y = y;
-	this.speed = speed;
-
-	this.imgReady = false;
-	//will use this visibility in order to not to show the shot when it isn't fired
-	this.amIvisible = visibility;
-	this.draw = function(ctx){
-		//if it is visible (existing) draw it
-		if(this.amIvisible){
-			var shotimg = new Image();
-			//save this to another varaible so that you can use it in the onload function
-			var _this = this;
-				shotimg.onload = function(){
-					_this.imgReady = true;
-					ctx.clearRect(_this.x, _this.y, shotWidth, shotHeight);
-					ctx.drawImage(shotimg, _this.x, _this.y, shotWidth, shotHeight);
-				};
-				shotimg.src = 'images/altf4.png';
-		}
-	}
-	this.move = function(){
-		//if it is visible (existing) move it
-		if(this.amIvisible){
-			var _this = this;
-			var shotimg = new Image();
-				shotimg.onload = function(){
-					_this.imgReady = true;
-					ctx.clearRect(_this.x, _this.y, shotWidth, shotHeight);
-					_this.x += speed;
-					ctx.drawImage(shotimg, _this.x, _this.y, shotWidth, shotHeight);
-				};
-				shotimg.src = 'images/altf4.png';
-		}
-	}
-}
-function InternetExporer(x,y,speed,hitPoints,hitPower){
-		//set object properties for x,y coordinate and speed
-	this.x = x;
-	this.y = y;
-	this.speed = speed;
-	//some indicators
 	this.canIJump = true;
-	this.isShotFired = false;
-	this.imgReady = false;
-	//will use this shits later :D
-	this.hitPower = hitPower;
-	this.hitPoints = hitPoints;
-	//make draw function for the object, whick also clears the canvas after the img is loaded, but before drawing
-	this.draw = function(ctx){
-		//save this to another varaible so that you can use it in the onload function
-		var _this = this;
-		var userimg = new Image();
-			userimg.onload = function(){
-				_this.imgReady = true;
-				ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-				ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-			};
-			userimg.src = 'images/ie6.png';
-	}
-	//some movement functions
+
+	//set health
+	this.health = hitPoints;
+	this.speed = speed;
+	this.userImg = new Image();
+	this.userImg.src = "images/ie6.png";
 	this.moveRight = function(){
-		var _this = this;
-		var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.x += speed;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/ie6.png';
+		this.x+= this.speed;
 	}
 	this.moveLeft = function(){
-		var _this = this;
-		var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.x -= speed;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/ie6.png';
+		this.x-= this.speed;
 	}
-	this.jump = function(){
-		//jump is activated so you can't jump again
-		this.canIJump = false;
-		//save this to another varaible so that you can use it in the timeout
-		var _this = this;
-		for(var i = 0; i < 30 ; i++){
-			//go up
-			setTimeout(function(){
-				var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.y -= 4;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/ie6.png';
-			},i*20);
-			//go down after some seconds
-			setTimeout(function(){
-				var userimg = new Image();
-					userimg.onload = function(){
-						_this.imgReady = true;
-						ctx.clearRect(_this.x, _this.y, userWidth, userHeight);
-						_this.y += 4;
-						ctx.drawImage(userimg, _this.x, _this.y, userWidth, userHeight);
-					};
-			userimg.src = 'images/ie6.png';
-			},(i+30)*20);
-		}
-		//after the jump you can jump again
-		setTimeout(function(){
-			_this.canIJump = true;
-		},1200);
+	this.moveDown = function(){
+		this.y += this.speed;
 	}
-	//shoot a shot
-	this.shoot = function(){
-		//shot is fired and you can't shoot again before it leave the canvas
-		this.isShotFired = true;
-		//make shot visible and set the right coords and speed for it
-		shot = new Shot(this.x + 100, this.y + 40, 2*this.speed, true);
+	 this.jump = function(){
+	     //jump is activated so you can't jump again
+	     //console.log(this.y)
+	     this.canIJump = false;
+	     //save this to another varaible so that you can use it in the timeout
+	     var _this = this;
+	     //go up
+	     for(var i = 0; i < 25 ; i++){
+	       	setTimeout(function(){
+	        	_this.y -= 4;
+	       },i*20);
+	     }
+	     //go down
+	    for(var i = 0; i < 25 ; i++){
+	       	setTimeout(function(){
+	        	_this.y += 4;
+	      },(i+25)*20);
+	     }
+	     //after the jump you can jump again
+	     setTimeout(function(){
+	       _this.canIJump = true;
+	     },1000);
+   }
 
-	}
-}
-//set shot width and height
-var shotWidth = 54;
-var shotHeight = 18;
-//create object for the shot
-function Shot(x,y,speed,visibility){
-	//set some shot properties
-	this.x = x;
-	this.y = y;
-	this.speed = speed;
 
-	this.imgReady = false;
-	//will use this visibility in order to not to show the shot when it isn't fired
-	this.amIvisible = visibility;
-	this.draw = function(ctx){
-		//if it is visible (existing) draw it
-		if(this.amIvisible){
-			var shotimg = new Image();
-			//save this to another varaible so that you can use it in the onload function
-			var _this = this;
-				shotimg.onload = function(){
-					_this.imgReady = true;
-					ctx.clearRect(_this.x, _this.y, shotWidth, shotHeight);
-					ctx.drawImage(shotimg, _this.x, _this.y, shotWidth, shotHeight);
-				};
-				shotimg.src = 'images/altf4.png';
-		}
-	}
-	this.move = function(){
-		//if it is visible (existing) move it
-		if(this.amIvisible){
-			var _this = this;
-			var shotimg = new Image();
-				shotimg.onload = function(){
-					_this.imgReady = true;
-					ctx.clearRect(_this.x, _this.y, shotWidth, shotHeight);
-					_this.x += speed;
-					ctx.drawImage(shotimg, _this.x, _this.y, shotWidth, shotHeight);
-				};
-				shotimg.src = 'images/altf4.png';
-		}
-	}
 }
-/*add eventlistener
-32 - space
-37 - left
-38- up
-39 - right
-40 - down
-*/
+
 var keysDown = [];
 window.addEventListener("keydown", function(e) {
 			//add the key to the keysDown array if it isn't there (indexOf used for that check) and if it is an arrow key or space
@@ -297,85 +141,120 @@ window.addEventListener("keyup", function(e) {
 				keysDown.splice(index,1);
 			}
 });
-//clear();
-//create user object
-var user = new User(0,ctx.canvas.height - userHeight,5,10,10);
+
+var user1 = new User(0,ctx.canvas.height - userHeight,5,10,100);
 //create shot
-var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
+//var shot = new Shot(0,ctx.canvas.height - userHeight,5,false);
 //create ie
-var ie  = new InternetExporer(ctx.canvas.width -ieWidth,ctx.canvas.height - ieHeight,5,10,10)
-//animation frame
-//
-var fps = 30;
-var now;
-var then = Date.now();
-var interval = 1000/fps;
-var delta;
-//draw user and ie in the begining
-user.draw(ctx);
-ie.draw(ctx);
+var ie  = new InternetExporer(ctx.canvas.width -ieWidth,ctx.canvas.height - ieHeight,5,10,100)
+function sleep(milliseconds) {
+  var start = new Date().getTime();
+  for (var i = 0; i < 1e7; i++) {
+    if ((new Date().getTime() - start) > milliseconds){
+      break;
+    }
+  }
+}
+
+
 function animationFrame(){
-	//when the function is executed we make a request to execute it again
-	requestAnimationFrame(animationFrame);
-	//
-	now = Date.now();
-    delta = now - then;
-     
-    if (delta > interval) {
-	        // update time stuffs
-	         
-	        // Just `then = now` is not enough.
-	        // Lets say we set fps at 10 which means
-	        // each frame must take 100ms
-	        // Now frame executes in 16ms (60fps) so
-	        // the loop iterates 7 times (16*7 = 112ms) until
-	        // delta > interval === true
-	        // Eventually this lowers down the FPS as
-	        // 112*10 = 1120ms (NOT 1000ms).
-	        // So we have to get rid of that extra 12ms
-	        // by subtracting delta (112) % interval (100).
-	        // Hope that makes sense.
-	         
-	        then = now - (delta % interval);
-		//cache the keysDown array because you change it dynamicaly and shit things happen if you don't do this :D
+			canvas.width = canvas.width;
+			/*
+		
+		ctx.fillStyle = "black";
+		ctx.font = "24px Helvetica";
+		ctx.textAlign = "left";
+		ctx.textBaseline = "top";
+		ctx.fillText("User: "+user1.health+" IE: "+ie.health , canvas.width/3, 32);*/
+		if(user1.health>0)
+			ctx.drawImage(user1.img, user1.x, user1.y, userWidth, userHeight);
+		if(ie.health>0)
+			ctx.drawImage(ie.userImg,ie.x,ie.y,ieWidth,ieHeight);	
+		else{
+			setTimeout(function(){
+			ie.health = 10000000000000000000;
+			ie.x = ctx.canvas.width -70;
+			ie.y = canvas.height/2 + 50 ;
+			ieHeight = 10;
+			ieWidth = 10;
+			ie.speed =   25;
+		},1000)
+			
+
+		}
+		if(ie.y<canvas.height - 70)
+			{
+				ie.y++;
+				if(ieHeight<70){
+				ieHeight++;
+				ieWidth++;
+			}
+			}
+
+		if(ie.y>=canvas.height - 70 && ie.health>10000000){
+			ie.speed =   5;
+			ie.health = 100;
+		}
+
+		
 		var cache = keysDown;
-		//perform moves if some keys are down
 		for(var i = 0; i < cache.length; i++){
 			switch(cache[i]){
 				case 37: {
 					//left
-					if(user.x >= user.speed)
-						user.moveLeft();
-					}
+					if(user1.x >= user1.speed)
+						user1.moveLeft();
 					break;
+				}					
 				case 39: {
 					//right
-					if(user.x <= ctx.canvas.width - userWidth - user.speed)
-						user.moveRight();
-					}
+					if(user1.x <= ctx.canvas.width - userWidth - user1.speed)
+						user1.moveRight();					
 					break;
+				}					
 				case 38: {
 					//up
-					if(user.canIJump)
-						user.jump();
+					if(user1.canIJump)
+						user1.jump();
+					break;
 				}
-				break;
 				case 32: {
 					//space
-					if(!user.isShotFired)
-						user.shoot();
-				}
-				break;
+					if(user1.canIShoot){
+						user1.shoot();
+					}
+					break;
+				}						
 			}
 		}
-		//move shot
-		shot.move();
-		//delete shot if it has left the canvas (make it not visible) and allow the user to shoot again
-		if(shot.x >= ctx.canvas.width - shotWidth){
-			shot.amIvisible = false;
-			user.isShotFired = false;
+		if(user1.isShotFired){	
+			if(user1.shot.x < ie.x || user1.shot.x > ie.x + userWidth)			{	
+				ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
+				user1.shot.moveRight();
+			}
+			else{
+				if(user1.shot.y < ie.y ||user1.shot.y>ie.y + userHeight){
+					ctx.drawImage(user1.shot.img,user1.shot.x,user1.shot.y,54,18);
+					user1.shot.moveRight();
+				}
+				else{
+					ie.health -= 25;
+					user1.canIshoot =true;
+					user1.isShotFired = false;
+					user1.shot.x = user1.x;
+					user1.shot.y = user1.y+20;
+				}
+			}
+			if(user1.shot.x <0 || user1.shot.x > canvas.width|| user1.shot.y <0 || user1.shot.y> canvas.height){
+					user1.canIshoot =true;
+					user1.isShotFired = false;
+					user1.shot.x = user1.x;
+					user1.shot.y = user1.y+50;
+			}
 		}
-	}
+		
+		//Loop it baby
+		requestAnimationFrame(animationFrame);	 	
 }
 //start animation
 animationFrame();
