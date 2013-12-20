@@ -169,6 +169,10 @@ function animationFrame(){
 		
 		
 		}
+		ctx.fillStyle = "black";
+		ctx.strokeRect(ie.x,ie.y  - 20,102,17);
+		ctx.strokeRect(user1.x,user1.y  - 20,102,17);
+
 		if(ie.canIshoot && ie.health<10000&&ie.health>0&&user1.health>0){
 			ie.shoot()
 		}
